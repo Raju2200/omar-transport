@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ওমর করপোরেশন - ট্রান্সপোর্ট ম্যানেজমেন্ট সফটওয়্যার (অনলাইন)</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f0f2f5; color: #333; padding: 15px; }
+        .container { max-width: 1350px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        
+        /* Header & User Bar */
+        .header { text-align: center; border-bottom: 3px solid #0056b3; padding-bottom: 15px; margin-bottom: 20px; position: relative; }
+        .header h1 { color: #0056b3; font-size: 32px; margin-bottom: 4px; font-weight: 800; }
+        .header p { color: #555; font-size: 16px; }
+        .user-bar { position: absolute; right: 0; top: 0; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: bold; background: #e3f2fd; padding: 6px 15px; border-radius: 20px; border: 1px solid #b3e5fc; }
+        .sync-badge { display: inline-flex; align-items: center; gap: 5px; background: #28a745; color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; margin-left: 5px; }
+        
+        /* Login Screen */
+        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .login-box { background: white; padding: 35px; border-radius: 10px; width: 360px; box-shadow: 0 5px 25px rgba(0,0,0,0.3); text-align: center; }
+        .login-box h2 { color: #0056b3; margin-bottom: 5px; font-size: 24px; }
+        .login-box p { color: #666; font-size: 14px; margin-bottom: 20px; }
+        .login-box input { width: 100%; padding: 11px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        
+        /* Tabs Nav */
+        .nav-tabs { display: flex; border-bottom: 2px solid #dee2e6; margin-bottom: 25px; gap: 5px; }
+        .tab-btn { padding: 12px 24px; border: none; background: #e9ecef; color: #495057; font-weight: bold; cursor: pointer; border-radius: 8px 8px 0 0; font-size: 15px; transition: 0.2s; }
+        .tab-btn.active { background: #0056b3; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Titles */
+        .section-title { background: #e9ecef; border-left: 5px solid #0056b3; padding: 10px 15px; font-size: 17px; font-weight: bold; margin-bottom: 20px; color: #0056b3; border-radius: 0 4px 4px 0; }
+
+        /* Forms Grid */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { font-size: 13px; font-weight: bold; margin-bottom: 6px; color: #495057; }
+        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; transition: 0.2s; }
+        .form-group input:focus, .form-group select:focus { border-color: #0056b3; outline: none; box-shadow: 0 0 5px rgba(0,86,179,0.2); }
+        .form-group input[readonly] { background-color: #e9ecef; color: #495057; }
+        
+        /* Buttons */
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-success:hover { background-color: #218838; }
+        .btn-primary { background-color: #0056b3; color: white; }
+        .btn-primary:hover { background-color: #004085; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-warning { background-color: #ffc107; color: #212529; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-info { background-color: #17a2b8; color: white; }
+
+        /* Filter Box & Backup Box */
+        .filter-box { background: #f8f9fa; padding: 20px; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end; }
+        .filter-box .form-group { flex: 1; min-width: 160px; }
+        .backup-bar { background: #e8f4f8; padding: 15px 20px; border-radius: 8px; border: 1px solid #b8daff; margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: space-between; }
+
+        /* Tables */
+        .table-responsive { overflow-x: auto; margin-top: 15px; border-radius: 8px; border: 1px solid #dee2e6; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1000px; }
+        table, th, td { border: 1px solid #dee2e6; }
+        th { background-color: #0056b3; color: white; padding: 12px 10px; text-align: center; white-space: nowrap; font-weight: 600; }
+        td { padding: 10px 8px; text-align: center; vertical-align: middle; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        
+        /* Summary Box/Cards Dashboard */
+        .summary-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 25px; }
+        .card { background: #ffffff; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .card h4 { font-size: 13px; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card p { font-size: 20px; font-weight: bold; color: #1e293b; }
+        
+        /* Theme Card Colors */
+        .card.income { border-top: 4px solid #28a745; background: #f4fbf6; }
+        .card.income p { color: #28a745; }
+        .card.expense { border-top: 4px solid #dc3545; background: #fff5f5; }
+        .card.expense p { color: #dc3545; }
+        .card.oil-expense { border-top: 4px solid #ffc107; background: #fffdf5; }
+        .card.oil-expense p { color: #b78103; }
+        .card.profit { border-top: 4px solid #0056b3; background: #f0f7ff; }
+        .card.profit p { color: #0056b3; }
+
+        @media print {
+            @page { size: A4 landscape; margin: 4mm; }
+            body { padding: 0; background: white; font-size: 9px; color: #000; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: 100%; padding: 0; margin: 0; }
+            .nav-tabs, form, .filter-box, .backup-bar, .btn, .no-print, .user-bar { display: none !important; }
+            .tab-content { display: block !important; }
+            #tab-entry, #tab-drivers { display: none !important; }
+            #tab-report { display: block !important; }
+            .header h1 { font-size: 18px; margin-bottom: 2px; color: #000 !important; }
+            .header p { font-size: 10px; }
+            .section-title { font-size: 11px; padding: 4px; margin-bottom: 8px; background: #eee !important; border-left: 4px solid #333 !important; color: #000 !important; }
+            .table-responsive { overflow: visible !important; border: none; margin-top: 5px; }
+            table { width: 100% !important; min-width: 100% !important; font-size: 9px !important; table-layout: fixed; }
+            th { background-color: #f2f2f2 !important; color: black !important; border: 1px solid #333 !important; padding: 4px 1px !important; font-size: 9px !important; white-space: normal !important; word-wrap: break-word; }
+            td { border: 1px solid #333 !important; padding: 4px 1px !important; font-size: 8.5px !important; word-wrap: break-word; background: none !important; color: #000 !important; }
+            
+            .summary-box { display: flex !important; flex-direction: row !important; justify-content: space-between !important; margin-top: 12px !important; gap: 6px; }
+            .card { flex: 1 !important; padding: 6px !important; border: 1px solid #333 !important; background: #fff !important; box-shadow: none !important; border-top: 3px solid #333 !important; }
+            .card h4 { font-size: 8.5px !important; color: #000 !important; }
+            .card p { font-size: 11px !important; color: #000 !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Login Overlay -->
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-box">
+        <h2>ওমর করপোরেশন</h2>
+        <p>সফটওয়্যারে প্রবেশ করতে লগইন করুন</p>
+        <form id="loginForm">
+            <input type="text" id="loginId" placeholder="ইউজার আইডি" required>
+            <input type="password" id="loginPass" placeholder="পাসওয়ার্ড" required>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">লগইন করুন</button>
+        </form>
+    </div>
+</div>
+
+<div class="container" id="mainContainer" style="display: none;">
+    <!-- Header -->
+    <div class="header">
+        <h1>ওমর করপোরেশন <span class="sync-badge" id="syncStatus">🌐 অনলাইন ক্লাউড সিঙ্ক সক্রিয়</span></h1>
+        <p>বিসিক, মাসকান্দা, ময়মনসিংহ</p>
+        <p style="margin-top: 4px; font-weight: bold; color: #0056b3;">ট্রান্সপোর্ট ও পিকআপ ডেলিভারি হিসাব (মাল্টি-ইউজার)</p>
+        
+        <div class="user-bar no-print">
+            <span>👤 এনট্রি প্রদানকারী: <span id="currentUserDisplay" style="color:#0056b3;">-</span></span>
+            <button class="btn btn-danger" style="padding: 2px 8px; font-size: 11px;" onclick="logout()">লগআউট</button>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('entry')">১. ডেলিভারি ও খরচের তথ্য</button>
+        <button class="tab-btn" onclick="switchTab('drivers')">২. গাড়ি ও ড্রাইভারের তথ্য</button>
+        <button class="tab-btn" onclick="switchTab('report')">৩. ডেলিভারি ও আয়-ব্যয় বিবরণী</button>
+    </div>
+
+    <!-- Tab 1: Daily Delivery Entry & Live Table -->
+    <div id="tab-entry" class="tab-content active">
+        <div class="section-title">প্রতিদিনের পিকাপ ডেলিভারি, আয় ও খরচের তথ্য লিপিবদ্ধকরণ</div>
+        <form id="deliveryForm" style="margin-bottom: 25px;">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>তারিখ:*</label>
+                    <input type="date" id="delDate" required>
+                </div>
+                <div class="form-group">
+                    <label>পিকআপ / গাড়ির নাম্বার:*</label>
+                    <select id="delVehicleNo" required onchange="autoFillDriverName()">
+                        <option value="">গাড়ি নির্বাচন করুন</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ড্রাইভারের নাম:*</label>
+                    <input type="text" id="delDriverName" placeholder="ড্রাইভারের নাম" required>
+                </div>
+                <div class="form-group">
+                    <label>গন্তব্য:*</label>
+                    <input type="text" id="delDestination" placeholder="গন্তব্য স্থান" required>
+                </div>
+                <div class="form-group">
+                    <label>ডেলিভারী ধরণ:*</label>
+                    <select id="delType" required>
+                        <option value="অফিস ট্রিপ">অফিস ট্রিপ</option>
+                        <option value="বাহির ট্রিপ">বাহির ট্রিপ</option>
+                        <option value="মিলিত ট্রিপ">মিলিত ট্রিপ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>চলতি কিলোমিটার (Km):*</label>
+                    <input type="number" id="delKm" step="0.1" min="0" placeholder="0" oninput="calculateTripMetrics()" required>
+                </div>
+                <div class="form-group">
+                    <label>মোট তেল (লিটার):*</label>
+                    <input type="number" id="delFuelLitre" step="0.1" min="0" placeholder="0" oninput="calculateTripMetrics()" required>
+                </div>
+                <div class="form-group">
+                    <label>তেল খরচ (টাকা):*</label>
+                    <input type="number" id="delFuelCost" step="0.1" min="0" placeholder="0" oninput="calculateTripMetrics()" required>
+                </div>
+                <div class="form-group">
+                    <label style="color: #28a745;">ভাড়া (টাকা):*</label>
+                    <input type="number" id="delIncome" step="0.1" min="0" placeholder="0" required>
+                </div>
+                <div class="form-group">
+                    <label style="color: #dc3545;">রোড খরচ (টাকা):</label>
+                    <input type="number" id="delServicingCost" step="0.1" min="0" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label style="color: #dc3545;">মজুরী (টাকা):</label>
+                    <input type="number" id="delLaborCost" step="0.1" min="0" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label style="color: #dc3545;">মবিল খরচ (টাকা):</label>
+                    <input type="number" id="delMobilCost" step="0.1" min="0" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label style="color: #dc3545;">অন্যান্য খরচ:</label>
+                    <input type="number" id="delOtherCost" step="0.1" min="0" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>প্রতি-কিমি খরচ (টাকা):</label>
+                    <input type="number" id="delPerKmCost" placeholder="স্বয়ংক্রিয় হিসাব" readonly>
+                </div>
+                <div class="form-group">
+                    <label>মাইলেজ (কিমি / লিটার):</label>
+                    <input type="number" id="delMileage" placeholder="স্বয়ংক্রিয় হিসাব" readonly>
+                </div>
+                <div class="form-group">
+                    <label>তথ্য প্রদানকারী (ইউজার):</label>
+                    <input type="text" id="delPreparedBy" readonly style="font-weight: bold; color: #0056b3;">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>মন্তব্য:</label>
+                    <input type="text" id="delRemarks" placeholder="অতিরিক্ত খরচ বা কোনো বিশেষ তথ্য থাকলে লিখুন">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success">তথ্য অনলাইন ক্লাউডে সেভ করুন (Save Entry)</button>
+        </form>
+
+        <div class="section-title">আজকের সংরক্ষিত ডেলিভারির তালিকা (লাইভ সিঙ্ক)</div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ক্রমিক</th>
+                        <th>তারিখ</th>
+                        <th>গাড়ির নাম্বার</th>
+                        <th>ড্রাইভারের নাম</th>
+                        <th>গন্তব্য</th>
+                        <th>কিলোমিটার</th>
+                        <th>তেল (লি.)</th>
+                        <th>তেল খরচ</th>
+                        <th style="background-color: #28a745;">ভাড়া (৳)</th>
+                        <th style="background-color: #c82333;">অন্যান্য খরচ</th>
+                        <th style="background-color: #0056b3;">নিট আমদানী</th>
+                        <th>মাইলেজ</th>
+                        <th>তথ্য প্রদানকারী</th>
+                        <th class="no-print">অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody id="liveDeliveryTableBody">
+                    <!-- Dynamic Live Rows -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab 2: Vehicles & Drivers Management -->
+    <div id="tab-drivers" class="tab-content">
+        <div class="section-title">গাড়ী ও ড্রাইভারের তথ্য সংরক্ষণ ও তথ্য সংশোধন</div>
+        <form id="driverForm" style="margin-bottom: 25px;">
+            <input type="hidden" id="driverEditId" value="">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>গাড়ীর নাম্বার:*</label>
+                    <input type="text" id="vehNo" placeholder="যেমন: ঢাকা মেট্রো-ন-১১-২২ ৩৩" required>
+                </div>
+                <div class="form-group">
+                    <label>গাড়ীর ধরন:*</label>
+                    <select id="vehType" required>
+                        <option value="ছোট পিকআপ">ছোট পিকআপ</option>
+                        <option value="মাঝারী পিকআপ">মাঝারী পিকআপ</option>
+                        <option value="বড় ট্রাক/পিকআপ">বড় ট্রাক/পিকআপ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ড্রাইভারের নাম:*</label>
+                    <input type="text" id="drvName" placeholder="ড্রাইভারের নাম" required>
+                </div>
+                <div class="form-group">
+                    <label>মোবাইল নাম্বার:*</label>
+                    <input type="text" id="drvMobile" placeholder="017xxxxxxxx" required>
+                </div>
+                <div class="form-group">
+                    <label>ড্রাইভিং লাইসেন্স নং:</label>
+                    <input type="text" id="drvLicense" placeholder="লাইসেন্স নাম্বার">
+                </div>
+                <div class="form-group">
+                    <label>ভোটার আইডি কার্ড (NID):</label>
+                    <input type="text" id="drvNid" placeholder="জাতীয় পরিচয়পত্র নাম্বার">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>ঠিকানা:</label>
+                    <input type="text" id="drvAddress" placeholder="ড্রাইভারের স্থায়ী/বর্তমান ঠিকানা">
+                </div>
+            </div>
+            <button type="submit" id="saveDriverBtn" class="btn btn-primary">গাড়ি ও ড্রাইভার অনলাইন সেভ করুন</button>
+            <button type="button" id="cancelDriverBtn" class="btn btn-secondary" style="display:none;" onclick="resetDriverForm()">বাতিল করুন</button>
+        </form>
+
+        <div class="section-title">সংরক্ষিত গাড়ি ও ড্রাইভার তালিকা</div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ক্রমিক</th>
+                        <th>গাড়ীর নাম্বার</th>
+                        <th>সাইজ/ধরন</th>
+                        <th>ড্রাইভারের নাম</th>
+                        <th>মোবাইল</th>
+                        <th>লাইসেন্স নং</th>
+                        <th>এনআইডি (NID)</th>
+                        <th>ঠিকানা</th>
+                        <th class="no-print">অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody id="driverTableBody">
+                    <!-- Loaded dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tab 3: Reports & Backup/Restore -->
+    <div id="tab-report" class="tab-content">
+        <div class="backup-bar no-print">
+            <div>
+                <strong style="color: #0056b3;">💾 পিসি ব্যাকআপ (JSON Export):</strong>
+                <span style="font-size: 13px; color: #555;"> (ডাটা পিসিতে ব্যাকআপ সেভ রাখুন)</span>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="btn btn-warning" onclick="downloadDataBackup()">📥 ডাটা ব্যাকআপ নিন (Save File)</button>
+                <button class="btn btn-info" onclick="document.getElementById('importFile').click()">📤 ডাটা রিসেট / লোড করুন</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="restoreDataBackup(event)">
+            </div>
+        </div>
+
+        <div class="section-title no-print">তারিখ ও গাড়ির নাম্বার অনুযায়ী সার্চ / ফিল্টার করুন</div>
+        <div class="filter-box no-print">
+            <div class="form-group">
+                <label>গাড়ির নাম্বার:</label>
+                <select id="filterVehicle">
+                    <option value="">সকল গাড়ি</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>শুরুর তারিখ:</label>
+                <input type="date" id="filterFromDate">
+            </div>
+            <div class="form-group">
+                <label>শেষ তারিখ:</label>
+                <input type="date" id="filterToDate">
+            </div>
+            <button class="btn btn-primary" onclick="generateReport()">খুঁজুন (Search)</button>
+            <button class="btn btn-secondary" onclick="resetReportFilter()">রিসেট</button>
+            <button class="btn btn-warning" style="margin-left: auto;" onclick="window.print()">প্রিন্ট / PDF করুন</button>
+        </div>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>তারিখ</th>
+                        <th>গাড়ির নাম্বার</th>
+                        <th>গন্তব্য</th>
+                        <th>কিলোমিটার</th>
+                        <th>তেল (লি.)</th>
+                        <th>তেল খরচ</th>
+                        <th style="background-color: #d4edda; color: #155724;">ভাড়া (৳)</th>
+                        <th>রোড খরচ</th>
+                        <th>মজুরী</th>
+                        <th>মবিল</th>
+                        <th>অন্যান্য খরচ</th>
+                        <th style="background-color: #fffdf5; color: #b78103;">মোট তেল খরচ</th>
+                        <th style="background-color: #fff5f5; color: #dc3545;">মোট অন্যান্য খরচ</th>
+                        <th style="background-color: #d1ecf1; color: #0c5460;">নিট আমদানী</th>
+                        <th class="no-print">অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody">
+                    <!-- Dynamic Rows -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="summary-box">
+            <div class="card">
+                <h4>মোট ট্রিপ</h4>
+                <p id="sumTrips">০</p>
+            </div>
+            <div class="card">
+                <h4>মোট কিলোমিটার</h4>
+                <p id="sumKm">০ কিমি</p>
+            </div>
+            <div class="card">
+                <h4>মোট তেল ব্যবহার</h4>
+                <p id="sumFuel">০ লিটার</p>
+            </div>
+            <div class="card income">
+                <h4>মোট ভাড়া</h4>
+                <p id="sumIncome">০ ৳</p>
+            </div>
+            <div class="card oil-expense">
+                <h4>মোট তেল খরচ</h4>
+                <p id="sumOilCost">০ ৳</p>
+            </div>
+            <div class="card expense">
+                <h4>মোট অন্যান্য খরচ</h4>
+                <p id="sumOtherCost">০ ৳</p>
+            </div>
+            <div class="card profit">
+                <h4>নিট আমদানী</h4>
+                <p id="sumNetProfit">০ ৳</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase SDK Integration -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // 🔴 আপনার আসল Firebase Config কোডটি সঠিকভাবে কানেক্ট করা হয়েছে
+    const firebaseConfig = {
+        apiKey: "AIzaSyCF0iLg1XRNI3FOq5vMg5yKC6Q96AQfFRI",
+        authDomain: "omar-corporation-by-raju.firebaseapp.com",
+        projectId: "omar-corporation-by-raju",
+        storageBucket: "omar-corporation-by-raju.firebasestorage.app",
+        messagingSenderId: "503853043254",
+        appId: "1:503853043254:web:43f42ac68c66e91b11d297",
+        measurementId: "G-J0YEL127K7"
+    };
+
+    let db = null;
+    let isFirebaseActive = false;
+
+    try {
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        isFirebaseActive = true;
+    } catch(e) {
+        console.warn("Firebase Connection Error: Fallback to Local Storage", e);
+    }
+
+    const systemUsers = {
+        'Rajan': '222416',
+        'Burhan': '223366'
+    };
+
+    window.currentUser = localStorage.getItem('omar_logged_user') || null;
+    window.vehiclesData = JSON.parse(localStorage.getItem('omar_vehicles')) || [];
+    window.deliveriesData = JSON.parse(localStorage.getItem('omar_deliveries')) || [];
+
+    window.logout = function() {
+        localStorage.removeItem('omar_logged_user');
+        window.currentUser = null;
+        location.reload();
+    };
+
+    window.switchTab = function(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        if(tabName === 'entry') {
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            document.getElementById('tab-entry').classList.add('active');
+            renderLiveDeliveryTable();
+        } else if(tabName === 'drivers') {
+            document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            document.getElementById('tab-drivers').classList.add('active');
+        } else if(tabName === 'report') {
+            document.querySelectorAll('.tab-btn')[2].classList.add('active');
+            document.getElementById('tab-report').classList.add('active');
+            generateReport();
+        }
+    };
+
+    // Firebase Realtime Online Listener
+    if (isFirebaseActive && db) {
+        onSnapshot(collection(db, "vehicles"), (snapshot) => {
+            window.vehiclesData = [];
+            snapshot.forEach((doc) => {
+                window.vehiclesData.push({ id: doc.id, ...doc.data() });
+            });
+            localStorage.setItem('omar_vehicles', JSON.stringify(window.vehiclesData));
+            updateVehicleDropdowns();
+            renderDriverTable();
+        });
+
+        onSnapshot(collection(db, "deliveries"), (snapshot) => {
+            window.deliveriesData = [];
+            snapshot.forEach((doc) => {
+                window.deliveriesData.push({ id: doc.id, ...doc.data() });
+            });
+            localStorage.setItem('omar_deliveries', JSON.stringify(window.deliveriesData));
+            renderLiveDeliveryTable();
+            generateReport();
+        });
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const inputId = document.getElementById('loginId').value.trim();
+        const inputPass = document.getElementById('loginPass').value.trim();
+
+        if (systemUsers[inputId] && systemUsers[inputId] === inputPass) {
+            window.currentUser = inputId;
+            localStorage.setItem('omar_logged_user', window.currentUser);
+            initApp();
+        } else {
+            alert('ভুল ইউজার আইডি অথবা পাসওয়ার্ড দিয়েছেন!');
+        }
+    });
+
+    function initApp() {
+        if (window.currentUser) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
+            document.getElementById('currentUserDisplay').textContent = window.currentUser;
+            document.getElementById('delPreparedBy').value = window.currentUser;
+            updateVehicleDropdowns();
+            renderDriverTable();
+            renderLiveDeliveryTable();
+            generateReport();
+        } else {
+            document.getElementById('loginOverlay').style.display = 'flex';
+            document.getElementById('mainContainer').style.display = 'none';
+        }
+    }
+
+    document.getElementById('delDate').valueAsDate = new Date();
+
+    function formatDateDMY(dateString) {
+        if (!dateString) return '-';
+        const parts = dateString.split('-');
+        if (parts.length === 3) {
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+        return dateString;
+    }
+
+    window.updateVehicleDropdowns = function() {
+        const delSelect = document.getElementById('delVehicleNo');
+        const filterSelect = document.getElementById('filterVehicle');
+        
+        delSelect.innerHTML = '<option value="">গাড়ি নির্বাচন করুন</option>';
+        filterSelect.innerHTML = '<option value="">সকল গাড়ি</option>';
+
+        window.vehiclesData.forEach(item => {
+            let opt = document.createElement('option');
+            opt.value = item.vehNo;
+            opt.textContent = item.vehNo + ' (' + item.vehType + ')';
+            delSelect.appendChild(opt);
+
+            let opt2 = document.createElement('option');
+            opt2.value = item.vehNo;
+            opt2.textContent = item.vehNo;
+            filterSelect.appendChild(opt2);
+        });
+    };
+
+    window.autoFillDriverName = function() {
+        const selectedVeh = document.getElementById('delVehicleNo').value;
+        const driverObj = window.vehiclesData.find(v => v.vehNo === selectedVeh);
+        if(driverObj) {
+            document.getElementById('delDriverName').value = driverObj.drvName;
+        } else {
+            document.getElementById('delDriverName').value = '';
+        }
+    };
+
+    window.calculateTripMetrics = function() {
+        const km = parseFloat(document.getElementById('delKm').value) || 0;
+        const fuelLitre = parseFloat(document.getElementById('delFuelLitre').value) || 0;
+        const fuelCost = parseFloat(document.getElementById('delFuelCost').value) || 0;
+
+        if (km > 0 && fuelCost > 0) {
+            document.getElementById('delPerKmCost').value = (fuelCost / km).toFixed(2);
+        } else {
+            document.getElementById('delPerKmCost').value = '';
+        }
+
+        if (km > 0 && fuelLitre > 0) {
+            document.getElementById('delMileage').value = (km / fuelLitre).toFixed(2);
+        } else {
+            document.getElementById('delMileage').value = '';
+        }
+    };
+
+    window.renderLiveDeliveryTable = function() {
+        const tbody = document.getElementById('liveDeliveryTableBody');
+        tbody.innerHTML = '';
+
+        if(window.deliveriesData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="14">এখনো কোনো ডেলিভারির তথ্য এনট্রি করা হয়নি।</td></tr>';
+            return;
+        }
+
+        let sortedData = [...window.deliveriesData].sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0));
+        const isRajan = (window.currentUser && window.currentUser.trim().toLowerCase() === 'rajan');
+
+        sortedData.forEach((item, index) => {
+            const fuel = parseFloat(item.fuelCost) || 0;
+            const serv = parseFloat(item.servicingCost) || 0;
+            const labor = parseFloat(item.laborCost) || 0;
+            const mobil = parseFloat(item.mobilCost) || 0;
+            const other = parseFloat(item.otherCost) || 0;
+            
+            const totalExp = fuel + serv + labor + mobil + other;
+            const income = parseFloat(item.income) || 0;
+            const netProfit = income - totalExp;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><strong>${index + 1}</strong></td>
+                <td>${formatDateDMY(item.date)}</td>
+                <td><strong>${item.vehicleNo}</strong></td>
+                <td>${item.driverName}</td>
+                <td>${item.destination}</td>
+                <td>${item.km}</td>
+                <td>${item.fuelLitre}</td>
+                <td>${item.fuelCost} ৳</td>
+                <td style="font-weight:bold; color:#28a745;">${income} ৳</td>
+                <td style="color:#dc3545;">${(serv+labor+mobil+other).toFixed(1)} ৳</td>
+                <td style="font-weight:bold; color:${netProfit >= 0 ? '#28a745' : '#dc3545'}">${netProfit.toFixed(1)} ৳</td>
+                <td>${item.mileage ? item.mileage : '-'}</td>
+                <td><span style="background:#e3f2fd; padding:2px 6px; border-radius:3px; font-weight:bold; color:#0056b3;">${item.preparedBy || 'Rajan'}</span></td>
+                <td class="no-print">
+                    ${isRajan ? `
+                        <button class="btn btn-danger" onclick="deleteDelivery('${item.id}')" style="padding:3px 6px; font-size:11px;">মুছুন</button>
+                    ` : `<span style="color:#888; font-size:11px;">অনুমতি নেই</span>`}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    };
+
+    document.getElementById('driverForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const editId = document.getElementById('driverEditId').value;
+        
+        const vehicleObj = {
+            vehNo: document.getElementById('vehNo').value.trim(),
+            vehType: document.getElementById('vehType').value,
+            drvName: document.getElementById('drvName').value.trim(),
+            drvMobile: document.getElementById('drvMobile').value.trim(),
+            drvLicense: document.getElementById('drvLicense').value.trim(),
+            drvNid: document.getElementById('drvNid').value.trim(),
+            drvAddress: document.getElementById('drvAddress').value.trim(),
+            updatedAt: Date.now()
+        };
+
+        const isRajan = (window.currentUser && window.currentUser.trim().toLowerCase() === 'rajan');
+
+        if(isFirebaseActive && db) {
+            if(!editId) {
+                await addDoc(collection(db, "vehicles"), vehicleObj);
+                alert('অনলাইনে নতুন গাড়ি ও ড্রাইভার সফলভাবে সেভ হয়েছে!');
+            } else {
+                if (!isRajan) { alert('অনুমতি নেই! শুধুমাত্র Rajan সংশোধন করতে পারবেন।'); return; }
+                await updateDoc(doc(db, "vehicles", editId), vehicleObj);
+                alert('অনলাইনে তথ্য সফলভাবে সংশোধন করা হয়েছে!');
+            }
+        } else {
+            if(!editId) {
+                vehicleObj.id = Date.now().toString();
+                window.vehiclesData.push(vehicleObj);
+            } else {
+                let idx = window.vehiclesData.findIndex(v => v.id === editId);
+                if (idx !== -1) window.vehiclesData[idx] = vehicleObj;
+            }
+            localStorage.setItem('omar_vehicles', JSON.stringify(window.vehiclesData));
+            updateVehicleDropdowns();
+            renderDriverTable();
+        }
+
+        resetDriverForm();
+    });
+
+    window.renderDriverTable = function() {
+        const tbody = document.getElementById('driverTableBody');
+        tbody.innerHTML = '';
+
+        if(window.vehiclesData.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9">কোনো গাড়ি বা ড্রাইভারের তথ্য পাওয়া যায়নি।</td></tr>';
+            return;
+        }
+
+        const isRajan = (window.currentUser && window.currentUser.trim().toLowerCase() === 'rajan');
+
+        window.vehiclesData.forEach((item, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td><strong>${item.vehNo}</strong></td>
+                <td>${item.vehType}</td>
+                <td>${item.drvName}</td>
+                <td>${item.drvMobile}</td>
+                <td>${item.drvLicense || '-'}</td>
+                <td>${item.drvNid || '-'}</td>
+                <td>${item.drvAddress || '-'}</td>
+                <td class="no-print">
+                    ${isRajan ? `
+                        <button class="btn btn-warning" onclick="editDriver('${item.id}')" style="padding:4px 8px; font-size:12px;">সংশোধন</button>
+                        <button class="btn btn-danger" onclick="deleteDriver('${item.id}')" style="padding:4px 8px; font-size:12px;">মুছুন</button>
+                    ` : `<span style="color:#888; font-size:11px;">অনুমতি নেই</span>`}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    };
+
+    window.editDriver = function(id) {
+        const isRajan = (window.currentUser && window.currentUser.trim().toLowerCase() === 'rajan');
+        if (!isRajan) {
+            alert('অনুমতি নেই! শুধুমাত্র Rajan এই তথ্য সংশোধন করতে পারবেন।');
+            return;
+        }
+        const item = window.vehiclesData.find(v => v.id === id);
+        if(!item) return;
+
+        document.getElementById('driverEditId').value = item.id;
+        document.getElementById('vehNo').value = item.vehNo;
+        document.getElementById('vehType').value = item.vehType;
+        document.getElementById('drvName').value = item.drvName;
+        document.getElementById('drvMobile').value = item.drvMobile;
+        document.getElementById('drvLicense').value = item.drvLicense || '';
+        document.getElementById('drvNid').value = item.drvNid || '';
+        document.getElementById('drvAddress').value = item.drvAddress || '';
+
+        document.getElementById('saveDriverBtn').textContent = 'তথ্য পরিবর্তন (Update) আপডেট করুন';
+        document.getElementById('cancelDriverBtn').style.display = 'inline-block';
+    };
+
+    window.resetDriverForm = function() {
+        document.getElementById('driverEditId').value = "";
+        document.getElementById('driverForm').reset();
+        document.getElementById('saveDriverBtn').textContent = 'গাড়ি ও ড্রাইভার অনলাইন সেভ করুন';
+        document.getElementById('cancelDriverBtn').style.display = 'none';
+    };
+
+    window.deleteDriver = async function(id) {
+        const isRajan = (window.currentUser && window.currentUser.trim().toLowerCase() === 'rajan');
+        if (!isRajan) {
+            alert('অনুমতি নেই! শুধুমাত্র Rajan মুছে ফেলতে পারবেন।');
+            return;
+        }
+        if(confirm('আপনি কি নিশ্চিত যে এই গাড়িটি তালিকা থেকে মুছে ফেলতে চান?')) {
+            if(isFirebaseActive && db) {
+                await deleteDoc(doc(db, "vehicles", id));
+            } else {
+                window.vehiclesData = window.vehiclesData.filter(item => item.id !== id);
+                localStorage.setItem('omar_vehicles', JSON.stringify(window.vehiclesData));
+                renderDriverTable();
+                updateVehicleDropdowns();
+            }
+        }
+    };
+
+    document.getElementById('deliveryForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const delObj = {
+            date: document.getElementById('delDate').value,
+            vehicleNo: document.getElementById('delVehicleNo').value,
+            driverName: document.getElementById('delDriverName').value.trim(),
+            destination: document.getElementById('delDestination').value.trim(),
+            type: document.getElementById('delType').value,
+            km: parseFloat(document.getElementById('delKm').value) || 0,
+            fuelLitre: parseFloat(document.getElementById('delFuelLitre').value) || 0,
+            fuelCost: parseFloat(document.getElementById('delFuelCost').value) || 0,
+            
+            income: parseFloat(document.getElementById('delIncome').value) || 0,
+            servicingCost: parseFloat(document.getElementById('delServicingCost').value) || 0,
+            laborCost: parseFloat(document.getElementById('delLaborCost').value) || 0,
+            mobilCost: parseFloat(document.getElementById('delMobilCost').value) || 0,
+            otherCost: parseFloat(document.getElementById('delOtherCost').value) || 0,
+
+            perKmCost: parseFloat(document.getElementById('delPerKmCost').value) || 0,
+            mileage: parseFloat(document.getElementById('delMileage').value) || 0,
+            preparedBy: window.currentUser,
+            remarks: document.getElementById('delRemarks').value.trim(),
+            createdAt: Date.now()
+        };
+
+        if (isFirebaseActive && db) {
+            await addDoc(collection(db, "deliveries"), delObj);
+            alert('অনলাইনে ডেলিভারির হিসাব সফলভাবে ক্লাউডে সংরক্ষণ করা হয়েছে!');
+        } else {
+            delObj.id = Date.now().toString();
+            window.deliveriesData.push(delObj);
+            localStorage.setItem('omar_deliveries', JSON.stringify(window.deliveriesData));
+            renderLiveDeliveryTable();
+        }
+
+        this.reset();
+        document.getElementById('delDate').valueAsDate = new Date();
+        document.getElementById('delPreparedBy').value = window.currentUser;
+    });
+
+    window.generateReport = function() {
+        const vehicleFilter = document.getElementById('filterVehicle').value;
+        const fromDate = document.getElementById('filterFromDate').value;
+        const toDate = document.getElementById('filterToDate').value;
+
+        let filtered = window.deliveriesData.filter(item => {
+            let matchVehicle = !vehicleFilter || item.vehicleNo === vehicleFilter;
+            let matchFrom = !fromDate || new Date(item.date) >= new Date(fromDate);
+            let matchTo = !toDate || new Date(item.date) <= new Date(toDate);
+            return matchVehicle && matchFrom && matchTo;
+        });
+
+        filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+        const tbody = document.getElementById('reportTableBody');
+        tbody.innerHTML = '';
+
+        let totKm = 0, totFuel = 0, totOilCost = 0, totOtherCost = 0, totIncome = 0, totNetProfit = 0;
+        const isRajan = (window.currentUser && window.currentUser.trim().toLowerCase() === 'rajan');
+
+        if(filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="15">কোনো তথ্য পাওয়া যায়নি।</td></tr>';
+        } else {
+            filtered.forEach(item => {
+                const fuel = parseFloat(item.fuelCost) || 0;
+                const serv = parseFloat(item.servicingCost) || 0;
+                const labor = parseFloat(item.laborCost) || 0;
+                const mobil = parseFloat(item.mobilCost) || 0;
+                const other = parseFloat(item.otherCost) || 0;
+                
+                const itemOtherCost = serv + labor + mobil + other;
+                const itemTotalCost = fuel + itemOtherCost;
+                const income = parseFloat(item.income) || 0;
+                const netProfit = income - itemTotalCost;
+
+                totKm += item.km;
+                totFuel += item.fuelLitre;
+                totIncome += income;
+                totOilCost += fuel;
+                totOtherCost += itemOtherCost;
+                totNetProfit += netProfit;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${formatDateDMY(item.date)}</td>
+                    <td><strong>${item.vehicleNo}</strong></td>
+                    <td>${item.destination}</td>
+                    <td>${item.km}</td>
+                    <td>${item.fuelLitre}</td>
+                    <td>${fuel} ৳</td>
+                    <td style="font-weight:bold; background-color:#f4fbf6; color:#28a745;">${income} ৳</td>
+                    <td>${serv} ৳</td>
+                    <td>${labor} ৳</td>
+                    <td>${mobil} ৳</td>
+                    <td>${other} ৳</td>
+                    <td style="font-weight:bold; background-color:#fffdf5; color:#b78103;">${fuel.toFixed(1)} ৳</td>
+                    <td style="font-weight:bold; background-color:#fff5f5; color:#dc3545;">${itemOtherCost.toFixed(1)} ৳</td>
+                    <td style="font-weight:bold; background-color:#f0f7ff; color:${netProfit >= 0 ? '#28a745' : '#dc3545'}">${netProfit.toFixed(1)} ৳</td>
+                    <td class="no-print">
+                        ${isRajan ? `
+                            <button class="btn btn-danger" onclick="deleteDelivery('${item.id}')" style="padding:3px 6px; font-size:11px;">মুছুন</button>
+                        ` : `<span style="color:#888; font-size:11px;">অনুমতি নেই</span>`}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        document.getElementById('sumTrips').textContent = filtered.length;
+        document.getElementById('sumKm').textContent = totKm.toFixed(1) + ' কিমি';
+        document.getElementById('sumFuel').textContent = totFuel.toFixed(1) + ' লিটার';
+        document.getElementById('sumIncome').textContent = totIncome.toFixed(1) + ' ৳';
+        document.getElementById('sumOilCost').textContent = totOilCost.toFixed(1) + ' ৳';
+        document.getElementById('sumOtherCost').textContent = totOtherCost.toFixed(1) + ' ৳';
+        document.getElementById('sumNetProfit').textContent = totNetProfit.toFixed(1) + ' ৳';
+        
+        if(totNetProfit < 0) {
+            document.getElementById('sumNetProfit').style.color = '#dc3545';
+        } else {
+            document.getElementById('sumNetProfit').style.color = '#0056b3';
+        }
+    };
+
+    window.resetReportFilter = function() {
+        document.getElementById('filterVehicle').value = '';
+        document.getElementById('filterFromDate').value = '';
+        document.getElementById('filterToDate').value = '';
+        generateReport();
+    };
+
+    window.deleteDelivery = async function(id) {
+        const isRajan = (window.currentUser && window.currentUser.trim().toLowerCase() === 'rajan');
+        if (!isRajan) {
+            alert('অনুমতি নেই! শুধুমাত্র Rajan মুছে ফেলতে পারবেন।');
+            return;
+        }
+        if(confirm('আপনি কি নিশ্চিত যে এই এনট্রিটি মুছে ফেলতে চান?')) {
+            if(isFirebaseActive && db) {
+                await deleteDoc(doc(db, "deliveries", id));
+            } else {
+                window.deliveriesData = window.deliveriesData.filter(item => item.id !== id);
+                localStorage.setItem('omar_deliveries', JSON.stringify(window.deliveriesData));
+                renderLiveDeliveryTable();
+                generateReport();
+            }
+        }
+    };
+
+    window.downloadDataBackup = function() {
+        const backupData = {
+            vehicles: window.vehiclesData,
+            deliveries: window.deliveriesData,
+            exportDate: new Date().toISOString()
+        };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
+        const downloadAnchor = document.createElement('a');
+        const todayStr = new Date().toISOString().slice(0,10);
+        
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `Omar_Corporation_Backup_${todayStr}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        
+        alert('ডাটা সফলভাবে পিসিতে ব্যাকআপ ফাইল হিসেবে ডাউনলোড হয়েছে!');
+    };
+
+    window.restoreDataBackup = function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                const restoredObj = JSON.parse(e.target.result);
+                if (restoredObj.vehicles && restoredObj.deliveries) {
+                    if(isFirebaseActive && db) {
+                        for(let v of restoredObj.vehicles) {
+                            let id = v.id || Date.now().toString();
+                            await setDoc(doc(db, "vehicles", id), v);
+                        }
+                        for(let d of restoredObj.deliveries) {
+                            let id = d.id || Date.now().toString();
+                            await setDoc(doc(db, "deliveries", id), d);
+                        }
+                    } else {
+                        window.vehiclesData = restoredObj.vehicles;
+                        window.deliveriesData = restoredObj.deliveries;
+                        localStorage.setItem('omar_vehicles', JSON.stringify(window.vehiclesData));
+                        localStorage.setItem('omar_deliveries', JSON.stringify(window.deliveriesData));
+                        updateVehicle
